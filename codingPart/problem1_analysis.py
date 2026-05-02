@@ -160,7 +160,7 @@ if len(consistency_results) > 0:
     print("\n   前10条不一致记录：")
     print(consistency_df.head(10).to_string(index=False))
 else:
-    print("   ✓ 所有数据逻辑一致，未发现矛盾")
+    print("   [OK] 所有数据逻辑一致，未发现矛盾")
 
 # 3.2 容量约束检查
 print("\n3.2 站点容量约束检查：")
@@ -182,10 +182,10 @@ for i, row in daily_inventory.iterrows():
             })
 
 if len(capacity_violations) > 0:
-    print(f"   ⚠ 发现 {len(capacity_violations)} 条容量超限记录")
+    print(f"   [WARNING] 发现 {len(capacity_violations)} 条容量超限记录")
     print(pd.DataFrame(capacity_violations).head(10).to_string(index=False))
 else:
-    print("   ✓ 所有库存均未超过站点容量")
+    print("   [OK] 所有库存均未超过站点容量")
 
 # 3.3 调度时间窗口检查
 print("\n3.3 调度时间窗口检查（应在00:00-05:00）：")
@@ -198,9 +198,9 @@ time_violations = dispatch_records[
 ]
 
 if len(time_violations) > 0:
-    print(f"   ⚠ 发现 {len(time_violations)} 条时间窗口违规记录")
+    print(f"   [WARNING] 发现 {len(time_violations)} 条时间窗口违规记录")
 else:
-    print("   ✓ 所有调度均在规定时间窗口内（00:00-05:00）")
+    print("   [OK] 所有调度均在规定时间窗口内（00:00-05:00）")
 
 # ============================================================================
 # 第四部分：时空特征分析
@@ -421,7 +421,7 @@ print(station_features_df[['station_id', '站点名称', '站点类型', '聚类
 
 # 保存特征数据
 station_features_df.to_csv('站点特征分析结果.csv', index=False, encoding='utf-8-sig')
-print("\n✓ 站点特征分析结果已保存至 '站点特征分析结果.csv'")
+print("\n[OK] 站点特征分析结果已保存至 '站点特征分析结果.csv'")
 
 print("\n" + "="*80)
 print("数据分析完成！开始生成可视化图表...")

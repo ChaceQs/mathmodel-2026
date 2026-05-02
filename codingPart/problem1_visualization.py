@@ -74,7 +74,7 @@ for bars in [bars1, bars2]:
 
 plt.tight_layout()
 plt.savefig('图1_站点流量对比.png', dpi=300, bbox_inches='tight')
-print("✓ 图1已保存")
+print("[OK] 图1已保存")
 plt.close()
 
 # ============================================================================
@@ -119,7 +119,7 @@ axes[1].grid(axis='y', alpha=0.3)
 
 plt.tight_layout()
 plt.savefig('图2_潮汐现象可视化.png', dpi=300, bbox_inches='tight')
-print("✓ 图2已保存")
+print("[OK] 图2已保存")
 plt.close()
 
 # ============================================================================
@@ -157,7 +157,7 @@ for idx, station_id in enumerate(typical_stations):
 
 plt.tight_layout()
 plt.savefig('图3_时间序列分析.png', dpi=300, bbox_inches='tight')
-print("✓ 图3已保存")
+print("[OK] 图3已保存")
 plt.close()
 
 # ============================================================================
@@ -211,7 +211,7 @@ axes[1].grid(axis='y', alpha=0.3)
 
 plt.tight_layout()
 plt.savefig('图4_工作日周末对比.png', dpi=300, bbox_inches='tight')
-print("✓ 图4已保存")
+print("[OK] 图4已保存")
 plt.close()
 
 # ============================================================================
@@ -254,7 +254,7 @@ for bars in [bars1, bars2]:
 
 plt.tight_layout()
 plt.savefig('图5_天气影响分析.png', dpi=300, bbox_inches='tight')
-print("✓ 图5已保存")
+print("[OK] 图5已保存")
 plt.close()
 
 # ============================================================================
@@ -266,17 +266,35 @@ fig, axes = plt.subplots(1, 2, figsize=(16, 6))
 
 # 散点图：平均净流量 vs 潮汐指数
 colors = ['#FF6B6B', '#4ECDC4', '#95E1D3']
+
+# 手动定义标签位置偏移，避免重叠
+label_offsets = {
+    '华苑小区': (0, 8),
+    '锦绣家园': (-3, -8),
+    '阳光新城': (0, -8),
+    '绿城花园': (3, 8),
+    '科技大厦': (0, 8),
+    '金融中心': (0, 8),
+    '时代广场': (0, 8),
+    '地铁站口': (-10, -8),      # 向左下偏移，避免与商业街口重叠
+    '大学城站': (10, 8),         # 向右上偏移，避免与商业街口重叠
+    '商业街口': (0, -10)         # 向下偏移更多，避免与地铁站口重叠
+}
+
 for cluster_id in station_features_df['聚类标签'].unique():
     cluster_data = station_features_df[station_features_df['聚类标签'] == cluster_id]
     axes[0].scatter(cluster_data['平均净流量'], cluster_data['潮汐指数'],
                    s=200, alpha=0.7, c=colors[cluster_id],
                    label=cluster_data['聚类名称'].iloc[0], edgecolors='black', linewidth=1.5)
 
-    # 添加站点标签
+    # 添加站点标签（使用偏移避免重叠）
     for _, row in cluster_data.iterrows():
+        offset = label_offsets.get(row['站点名称'], (0, 8))
         axes[0].annotate(row['站点名称'],
                         (row['平均净流量'], row['潮汐指数']),
-                        fontsize=9, ha='center', va='bottom')
+                        xytext=offset, textcoords='offset points',
+                        fontsize=9, ha='center', va='bottom' if offset[1] > 0 else 'top',
+                        bbox=dict(boxstyle='round,pad=0.3', facecolor='white', edgecolor='gray', alpha=0.7))
 
 axes[0].set_xlabel('平均净流量（辆/天）', fontsize=11, fontweight='bold')
 axes[0].set_ylabel('潮汐指数', fontsize=11, fontweight='bold')
@@ -287,17 +305,36 @@ axes[0].axhline(y=0, color='gray', linestyle='--', linewidth=0.8)
 axes[0].axvline(x=0, color='gray', linestyle='--', linewidth=0.8)
 
 # 散点图：平均流出 vs 平均流入
+# 手动定义标签位置偏移，避免重叠
+label_offsets_2 = {
+    '华苑小区': (0, 8),
+    '锦绣家园': (0, -8),
+    '阳光新城': (10, 3),        # 向右偏移，避免与绿城花园重叠
+    '绿城花园': (-10, -3),      # 向左下偏移，避免与阳光新城重叠
+    '科技大厦': (0, 8),
+    '金融中心': (0, 8),
+    '时代广场': (0, 8),
+    '地铁站口': (0, 8),
+    '大学城站': (0, 8),
+    '商业街口': (0, 8)
+}
+
 for cluster_id in station_features_df['聚类标签'].unique():
     cluster_data = station_features_df[station_features_df['聚类标签'] == cluster_id]
     axes[1].scatter(cluster_data['平均流出'], cluster_data['平均流入'],
                    s=200, alpha=0.7, c=colors[cluster_id],
                    label=cluster_data['聚类名称'].iloc[0], edgecolors='black', linewidth=1.5)
 
-    # 添加站点标签
+    # 添加站点标签（使用偏移避免重叠）
     for _, row in cluster_data.iterrows():
+        offset = label_offsets_2.get(row['站点名称'], (0, 8))
+        ha = 'center' if offset[0] == 0 else ('right' if offset[0] < 0 else 'left')
+        va = 'bottom' if offset[1] > 0 else ('top' if offset[1] < 0 else 'center')
         axes[1].annotate(row['站点名称'],
                         (row['平均流出'], row['平均流入']),
-                        fontsize=9, ha='center', va='bottom')
+                        xytext=offset, textcoords='offset points',
+                        fontsize=9, ha=ha, va=va,
+                        bbox=dict(boxstyle='round,pad=0.3', facecolor='white', edgecolor='gray', alpha=0.7))
 
 # 添加对角线（流入=流出）
 max_val = max(station_features_df['平均流出'].max(), station_features_df['平均流入'].max())
@@ -311,7 +348,7 @@ axes[1].grid(alpha=0.3)
 
 plt.tight_layout()
 plt.savefig('图6_站点聚类结果.png', dpi=300, bbox_inches='tight')
-print("✓ 图6已保存")
+print("[OK] 图6已保存")
 plt.close()
 
 # ============================================================================
@@ -349,7 +386,7 @@ ax.legend(fontsize=11)
 
 plt.tight_layout()
 plt.savefig('图7_关键站点识别.png', dpi=300, bbox_inches='tight')
-print("✓ 图7已保存")
+print("[OK] 图7已保存")
 plt.close()
 
 # ============================================================================
@@ -415,7 +452,7 @@ for bar in bars:
 
 plt.tight_layout()
 plt.savefig('图8_调度模式分析.png', dpi=300, bbox_inches='tight')
-print("✓ 图8已保存")
+print("[OK] 图8已保存")
 plt.close()
 
 # ============================================================================
@@ -440,7 +477,7 @@ ax.set_title('站点特征相关性热力图', fontsize=14, fontweight='bold', p
 
 plt.tight_layout()
 plt.savefig('图9_特征相关性热力图.png', dpi=300, bbox_inches='tight')
-print("✓ 图9已保存")
+print("[OK] 图9已保存")
 plt.close()
 
 print("\n" + "="*80)
