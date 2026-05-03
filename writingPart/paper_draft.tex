@@ -1,0 +1,488 @@
+\documentclass[12pt,a4paper]{ctexart}
+
+% 页面设置
+\usepackage[top=2.5cm,bottom=2.5cm,left=2.5cm,right=2.5cm]{geometry}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[C]{\small 全国大学生数学建模竞赛论文}
+\fancyfoot[C]{\thepage}
+
+% 数学公式
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{mathrsfs}
+
+% 图表
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subfigure}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{multirow}
+
+% 代码
+\usepackage{listings}
+\usepackage{xcolor}
+
+% 超链接
+\usepackage[colorlinks,linkcolor=black,anchorcolor=black,citecolor=black]{hyperref}
+
+% 参考文献
+\usepackage{cite}
+
+% 其他
+\usepackage{enumerate}
+\usepackage{indentfirst}
+\setlength{\parindent}{2em}
+
+% 代码样式设置
+\lstset{
+    basicstyle=\small\ttfamily,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green!50!black},
+    stringstyle=\color{red},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=8pt,
+    frame=single,
+    breaklines=true,
+    breakatwhitespace=false,
+    showstringspaces=false,
+    tabsize=4,
+    captionpos=b
+}
+
+% 定理环境
+\newtheorem{definition}{定义}[section]
+\newtheorem{theorem}{定理}[section]
+\newtheorem{lemma}{引理}[section]
+\newtheorem{assumption}{假设}[section]
+
+% 标题格式
+\CTEXsetup[format={\Large\bfseries}]{section}
+\CTEXsetup[format={\large\bfseries}]{subsection}
+
+\begin{document}
+
+% ==================== 封面（此处省略，使用模板中的标准封面）====================
+
+% 论文标题页
+\thispagestyle{empty}
+\begin{center}
+    \vspace*{2cm}
+    {\Huge\bfseries 共享单车调度优化与需求预测}
+
+    \vspace{1cm}
+
+\end{center}
+
+\vspace{2cm}
+
+% ==================== 摘要 ====================
+\begin{center}
+    {\LARGE\bfseries 摘\quad 要}
+\end{center}
+
+\vspace{0.5cm}
+
+【摘要待全文完成后撰写】
+
+\vspace{0.5cm}
+
+\noindent\textbf{关键词：}共享单车；调度优化；需求预测；最优控制；时间序列分析
+
+\newpage
+
+% 设置页码
+\setcounter{page}{1}
+
+% ==================== 目录 ====================
+\tableofcontents
+\newpage
+
+% ==================== 正文 ====================
+
+\section{问题重述}
+
+\subsection{问题背景}
+
+共享单车作为城市短途出行的重要交通方式，有效解决了城市居民出行"最后一公里"的难题。然而，在实际运营过程中，城市普遍存在显著的"潮汐现象"：早高峰时段（7:00-9:00），大量单车从居民区向商务区、办公区单向聚集；晚高峰时段（17:00-19:00），单车流动方向则完全相反。这种时空分布的严重不均衡导致部分站点车辆过度积压、资源闲置浪费，而另一部分站点则面临车辆严重短缺、无法满足用户需求的困境。
+
+为应对这一挑战，共享单车运营商通常选择在夜间低峰时段（00:00-05:00）进行车辆调度作业，通过卡车将车辆从过剩区域重新分配到短缺区域，以确保次日早高峰前各站点库存处于合理水平。如何基于历史运营数据科学预测各站点需求、设计合理高效的调度方案，并在有限的时间窗口和资源约束下实现总成本最小化，已成为共享单车运营优化的核心问题。
+
+本赛题提供某城市共享单车系统的真实运营数据集，包含10个站点在2023年6月1日至6月14日（两周）期间的骑行记录、库存变化、调度历史、天气信息等多源数据，要求参赛队伍建立数学模型，解决调度优化与需求预测问题。
+
+\subsection{问题概述}
+
+本题要求参赛队伍基于某城市10个共享单车站点两周的历史运营数据，综合运用数据分析、最优控制理论、预测建模等方法，解决以下核心问题：
+
+\begin{enumerate}
+    \item \textbf{数据特征分析与站点分类}：对多源异构数据进行质量评估、清洗与预处理，验证数据间的逻辑一致性，挖掘时空特征，分析不同站点的出行模式、潮汐强度及外部因素影响，并对站点进行科学分类。
+
+    \item \textbf{最优控制的调度优化}：在给定的资源约束（3辆卡车、单车装载量15辆、作业时间300分钟）和成本结构（运输成本、缺货成本、积压成本）下，建立最优控制模型，设计高效算法求解最优调度方案，并进行全面的成本效益评估。
+
+    \item \textbf{需求预测与集成应用}：建立动态方程模型或人工智能预测模型，考虑站点间转移效应、潮汐现象及外部因素，预测未来两天各站点车辆数变化，并将预测结果集成到调度模型中，设计预测-调度一体化框架。
+\end{enumerate}
+
+\subsection{待解决的问题}
+
+本文需要解决以下三个具体问题：
+
+\begin{enumerate}
+    \item \textbf{问题一：数据特征分析与站点分类}
+
+    对提供的多源数据（站点基础信息、日汇总骑行数据、每日初始库存、天气数据、调度记录、站点距离、站点期望库存）进行全面的质量评估、清洗与预处理。验证骑行数据、库存数据、调度记录之间的逻辑一致性，识别并处理异常值与矛盾数据。在此基础上，深入挖掘数据的时空特征，分析不同类型站点的出行模式差异、潮汐现象强度、天气及节假日对需求的影响规律。基于流量特征、潮汐特征、地理位置等多维度信息，对站点进行科学分类，识别关键站点，并提取特征变量为后续建模提供支撑。
+
+    \item \textbf{问题二：最优控制的调度优化}
+
+    在以下约束条件下设计最优调度方案：
+    \begin{itemize}
+        \item 资源约束：配备3辆卡车，单车最大装载量15辆
+        \item 时间约束：作业时段00:00-05:00，总可用时间300分钟
+        \item 运输参数：车辆平均行驶速度20 km/h，装卸单车耗时1分钟/辆
+        \item 成本结构：运输成本2元/公里·辆，缺货成本10元/辆·次，积压成本5元/辆·次
+        \item 服务要求：调度后早高峰前各站点库存需处于期望库存±允许偏差范围内
+    \end{itemize}
+
+    建立以站点车辆数为状态变量、调度速率为控制变量的最优控制模型，目标函数为最小化包含运输成本、缺货成本与积压成本的总成本。设计高效算法求解最优调度量，并将结果转换为具体的车辆调度任务（包括卡车路径、调度时间、调度数量等）。从经济效益（成本降低幅度）、服务质量（需求满足率、站点平衡度）及参数敏感性等方面进行全面评估。
+
+    \item \textbf{问题三：基于动态方程或人工智能模型的需求预测}
+
+    可选择建立描述单车流动的微分方程组动态模型，或采用机器学习、深度学习等人工智能预测模型。模型需考虑站点间的转移效应、潮汐现象的周期性规律，以及天气、节假日等外部因素的影响。使用历史数据（前10天）进行参数估计、模型训练与校准，基于训练好的模型预测未来两天各站点的车辆数变化。将预测结果集成到问题二的调度模型中，比较基于预测需求与历史平均需求的调度效果差异，设计滚动时域预测-调度一体化框架以提升系统的鲁棒性和适应性。
+\end{enumerate}
+
+\section{问题分析}
+
+\subsection{问题一的分析}
+
+问题一的核心是通过数据分析挖掘共享单车系统的运营规律，为后续建模提供数据基础和特征支撑。
+
+\subsubsection{数据质量评估与预处理}
+
+数据集包含7个部分的多源异构数据，首先需要进行全面的质量评估：
+
+\begin{enumerate}
+    \item \textbf{完整性检查}：检查各数据表是否存在缺失值，特别是关键字段（站点ID、日期、流量数据等）的完整性。
+
+    \item \textbf{一致性验证}：验证不同数据源之间的逻辑关系，例如：
+    \begin{itemize}
+        \item 每日初始库存 + 总流入 - 总流出 - 调出 + 调入 = 次日初始库存
+        \item 总流出 = 早高峰流出 + 晚高峰流出 + 其他时段流出
+        \item 调度记录中的距离与站点距离矩阵是否匹配
+        \item 调度时长是否符合：时长 = 距离/速度 + 装卸时间
+    \end{itemize}
+
+    \item \textbf{异常值识别}：识别明显不合理的数据，如负数流量、超出站点容量的库存、异常的调度时长等。
+
+    \item \textbf{数据清洗}：对识别出的异常值和矛盾数据进行处理，采用插值、修正或删除等方法。
+\end{enumerate}
+
+\subsubsection{时空特征挖掘}
+
+基于清洗后的数据，需要从多个维度挖掘特征：
+
+\begin{enumerate}
+    \item \textbf{时间维度特征}：
+    \begin{itemize}
+        \item 工作日与周末的需求差异
+        \item 早高峰、晚高峰、平峰时段的流量分布
+        \item 日内变化规律和周内变化规律
+        \item 节假日对需求的影响
+    \end{itemize}
+
+    \item \textbf{空间维度特征}：
+    \begin{itemize}
+        \item 不同站点的流量规模（高流量站点 vs 低流量站点）
+        \item 站点的地理位置分布和区域聚类
+        \item 站点间的流量关联性和转移模式
+    \end{itemize}
+
+    \item \textbf{潮汐特征}：
+    \begin{itemize}
+        \item 净流量（流入-流出）的方向和强度
+        \item 早晚高峰的潮汐对称性
+        \item 潮汐强度指标：$\text{潮汐强度} = \frac{|\text{早高峰净流量}| + |\text{晚高峰净流量}|}{\text{总流量}}$
+    \end{itemize}
+
+    \item \textbf{外部因素影响}：
+    \begin{itemize}
+        \item 天气类型（晴天、雨天等）对骑行需求的影响
+        \item 温度与骑行量的相关性
+        \item 天气系数的作用机制
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{站点分类方法}
+
+基于提取的特征，可采用以下方法对站点进行分类：
+
+\begin{enumerate}
+    \item \textbf{基于潮汐特征的分类}：
+    \begin{itemize}
+        \item 源站点（Source）：早高峰大量流出，晚高峰大量流入（如居民区）
+        \item 汇站点（Sink）：早高峰大量流入，晚高峰大量流出（如商务区）
+        \item 平衡站点（Balanced）：流入流出相对均衡
+    \end{itemize}
+
+    \item \textbf{基于流量规模的分类}：
+    \begin{itemize}
+        \item 高需求站点：日均流量超过阈值
+        \item 中需求站点：日均流量处于中等水平
+        \item 低需求站点：日均流量较低
+    \end{itemize}
+
+    \item \textbf{聚类分析}：采用K-means、层次聚类等方法，基于多维特征向量（流量、潮汐强度、地理位置等）进行无监督聚类。
+
+    \item \textbf{关键站点识别}：综合考虑流量规模、潮汐强度、调度频次等指标，识别对系统运营影响最大的关键站点。
+\end{enumerate}
+
+\subsection{问题二的分析}
+
+问题二的核心是在多重约束条件下建立最优控制模型，实现调度成本最小化。
+
+\subsubsection{问题本质}
+
+这是一个典型的车辆路径规划问题（Vehicle Routing Problem, VRP）与库存管理问题的结合，具有以下特点：
+
+\begin{enumerate}
+    \item \textbf{多目标优化}：需要同时考虑运输成本、缺货成本、积压成本三类成本。
+
+    \item \textbf{多重约束}：
+    \begin{itemize}
+        \item 车辆容量约束：每辆卡车最多装载15辆单车
+        \item 时间窗口约束：必须在300分钟内完成所有调度任务
+        \item 库存约束：调度后各站点库存需满足期望库存±允许偏差
+        \item 物理约束：调度量不能超过站点当前库存，不能超过目标站点容量
+    \end{itemize}
+
+    \item \textbf{离散决策}：调度的单车数量为整数，卡车路径为离散选择。
+\end{enumerate}
+
+\subsubsection{建模思路}
+
+\begin{enumerate}
+    \item \textbf{状态变量}：各站点的车辆库存数 $x_i(t)$，$i=1,2,\ldots,10$。
+
+    \item \textbf{控制变量}：站点$i$到站点$j$的调度速率或调度量 $u_{ij}$。
+
+    \item \textbf{目标函数}：
+    \begin{equation}
+        \min J = C_{\text{运输}} + C_{\text{缺货}} + C_{\text{积压}}
+    \end{equation}
+    其中：
+    \begin{itemize}
+        \item 运输成本：$C_{\text{运输}} = 2 \sum_{i,j} u_{ij} \cdot d_{ij}$（$d_{ij}$为站点间距离）
+        \item 缺货成本：$C_{\text{缺货}} = 10 \sum_{i} \max(0, L_i - x_i^{\text{final}})$（$L_i$为期望库存下限）
+        \item 积压成本：$C_{\text{积压}} = 5 \sum_{i} \max(0, x_i^{\text{final}} - U_i)$（$U_i$为期望库存上限）
+    \end{itemize}
+
+    \item \textbf{约束条件}：
+    \begin{itemize}
+        \item 库存平衡：$x_i^{\text{final}} = x_i^{\text{initial}} - \sum_j u_{ij} + \sum_j u_{ji}$
+        \item 车辆容量：每次运输量 $\leq 15$
+        \item 时间约束：$\sum \left(\frac{d_{ij}}{20} \times 60 + u_{ij}\right) \leq 300$（单位：分钟）
+        \item 非负约束：$u_{ij} \geq 0$，且为整数
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{求解策略}
+
+由于问题的复杂性（NP-hard问题），可采用以下求解策略：
+
+\begin{enumerate}
+    \item \textbf{两阶段求解}：
+    \begin{itemize}
+        \item 第一阶段：确定各站点的最优调度量（调入/调出多少辆）
+        \item 第二阶段：基于调度量设计具体的车辆路径和调度顺序
+    \end{itemize}
+
+    \item \textbf{启发式算法}：
+    \begin{itemize}
+        \item 贪心算法：优先调度潮汐强度最大的站点对
+        \item 遗传算法：对调度方案进行编码，通过选择、交叉、变异操作搜索最优解
+        \item 模拟退火：在解空间中进行随机搜索，逐步降低温度以收敛到最优解
+    \end{itemize}
+
+    \item \textbf{精确算法}：
+    \begin{itemize}
+        \item 整数规划：将问题建模为混合整数线性规划（MILP），使用商业求解器（如Gurobi、CPLEX）求解
+        \item 动态规划：对于小规模问题，可采用动态规划方法求解最优路径
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{评估指标}
+
+调度方案的评估需要从多个维度进行：
+
+\begin{enumerate}
+    \item \textbf{经济效益}：
+    \begin{itemize}
+        \item 总成本及各项成本的构成
+        \item 与不调度或简单调度策略相比的成本降低幅度
+    \end{itemize}
+
+    \item \textbf{服务质量}：
+    \begin{itemize}
+        \item 需求满足率：$\frac{\text{满足期望库存的站点数}}{\text{总站点数}}$
+        \item 站点平衡度：各站点库存偏离期望值的标准差
+        \item 资源利用率：卡车装载率、时间利用率
+    \end{itemize}
+
+    \item \textbf{鲁棒性}：
+    \begin{itemize}
+        \item 参数敏感性分析：改变成本系数、时间窗口等参数，观察最优解的变化
+        \item 需求波动下的方案稳定性
+    \end{itemize}
+\end{enumerate}
+
+\subsection{问题三的分析}
+
+问题三的核心是建立需求预测模型，并将预测结果与调度优化模型集成，形成预测-调度一体化框架。
+
+\subsubsection{预测模型选择}
+
+可选择以下两类建模方法：
+
+\begin{enumerate}
+    \item \textbf{动态方程模型（微分方程组）}：
+
+    基于系统动力学思想，将单车流动视为连续过程，建立微分方程组：
+    \begin{equation}
+        \frac{dx_i(t)}{dt} = \sum_{j \neq i} f_{ji}(t) - \sum_{j \neq i} f_{ij}(t) + u_i(t)
+    \end{equation}
+    其中：
+    \begin{itemize}
+        \item $x_i(t)$：站点$i$在时刻$t$的车辆数
+        \item $f_{ij}(t)$：从站点$i$到站点$j$的流量速率
+        \item $u_i(t)$：调度输入
+    \end{itemize}
+
+    流量速率可建模为：
+    \begin{equation}
+        f_{ij}(t) = \alpha_{ij} \cdot x_i(t) \cdot g(t) \cdot h(w)
+    \end{equation}
+    其中：
+    \begin{itemize}
+        \item $\alpha_{ij}$：站点$i$到$j$的转移系数
+        \item $g(t)$：时间因子（反映潮汐现象）
+        \item $h(w)$：天气影响因子
+    \end{itemize}
+
+    \item \textbf{人工智能预测模型}：
+
+    \begin{itemize}
+        \item \textbf{时间序列模型}：ARIMA、SARIMA（考虑季节性）、指数平滑等
+        \item \textbf{机器学习模型}：随机森林、XGBoost、支持向量机等，输入特征包括历史流量、星期、天气、节假日等
+        \item \textbf{深度学习模型}：
+        \begin{itemize}
+            \item LSTM（长短期记忆网络）：捕捉时间序列的长期依赖关系
+            \item GRU（门控循环单元）：LSTM的简化版本
+            \item Transformer：基于注意力机制的模型
+            \item GNN（图神经网络）：考虑站点间的空间关联性
+        \end{itemize}
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{模型训练与验证}
+
+\begin{enumerate}
+    \item \textbf{数据划分}：
+    \begin{itemize}
+        \item 训练集：前10天数据（6月1日-6月10日）
+        \item 验证集：第11-12天数据（用于调参）
+        \item 测试集：第13-14天数据（评估预测精度）
+    \end{itemize}
+
+    \item \textbf{特征工程}：
+    \begin{itemize}
+        \item 时间特征：小时、星期、是否节假日
+        \item 滞后特征：前1天、前2天、前7天的流量
+        \item 统计特征：历史均值、标准差、最大值、最小值
+        \item 外部特征：天气类型、温度、天气系数
+    \end{itemize}
+
+    \item \textbf{评估指标}：
+    \begin{itemize}
+        \item MAE（平均绝对误差）：$\frac{1}{n}\sum |y_i - \hat{y}_i|$
+        \item RMSE（均方根误差）：$\sqrt{\frac{1}{n}\sum (y_i - \hat{y}_i)^2}$
+        \item MAPE（平均绝对百分比误差）：$\frac{1}{n}\sum \frac{|y_i - \hat{y}_i|}{y_i} \times 100\%$
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{预测-调度集成框架}
+
+将预测模型与调度优化模型集成，形成闭环系统：
+
+\begin{enumerate}
+    \item \textbf{滚动时域策略}：
+    \begin{itemize}
+        \item 每天基于最新数据更新预测模型
+        \item 预测未来1-2天的需求
+        \item 基于预测需求制定调度计划
+        \item 执行调度后，观测实际需求，更新模型参数
+    \end{itemize}
+
+    \item \textbf{对比分析}：
+    \begin{itemize}
+        \item 基于预测需求的调度方案 vs 基于历史平均需求的调度方案
+        \item 比较指标：总成本、需求满足率、库存偏差
+    \end{itemize}
+
+    \item \textbf{鲁棒性提升}：
+    \begin{itemize}
+        \item 考虑预测误差，设置安全库存
+        \item 采用鲁棒优化方法，在最坏情况下仍能保证服务质量
+        \item 设计应急调度机制，应对突发需求波动
+    \end{itemize}
+\end{enumerate}
+
+\subsubsection{模型改进方向}
+
+\begin{enumerate}
+    \item \textbf{多模型融合}：结合动态方程模型的可解释性和深度学习模型的预测精度，采用集成学习方法。
+
+    \item \textbf{实时调整}：在调度执行过程中，根据实时反馈动态调整调度计划。
+
+    \item \textbf{多时间尺度建模}：同时考虑短期预测（小时级）和中期预测（天级），提高预测的时间分辨率。
+
+    \item \textbf{因果推断}：不仅预测"会发生什么"，还要分析"为什么发生"，识别影响需求的关键因素。
+\end{enumerate}
+
+\section{模型假设}
+
+【待建模手提供具体假设后填写】
+
+\section{符号说明}
+
+【待建模手提供符号表后填写】
+
+\section{模型建立与求解}
+
+【待建模手和编程手提供模型和结果后填写】
+
+\section{灵敏度分析}
+
+【待编程手提供分析结果后填写】
+
+\section{模型评价与改进}
+
+【待全文完成后撰写】
+
+% ==================== 参考文献 ====================
+\newpage
+\begin{thebibliography}{99}
+
+\bibitem{ref1} 待补充
+
+\end{thebibliography}
+
+% ==================== 附录 ====================
+\newpage
+\appendix
+
+\section{代码}
+
+【待编程手提供代码后填写】
+
+\end{document}
