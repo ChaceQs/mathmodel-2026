@@ -6,16 +6,35 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
 from matplotlib.patches import Rectangle
 import warnings
 warnings.filterwarnings('ignore')
 
-# 设置中文字体
-
-sns.set_style("whitegrid")
-plt.rcParams['font.sans-serif'] = ['SimHei', 'Microsoft YaHei']
+# 设置中文字体和样式
+plt.rcParams['font.sans-serif'] = ['Microsoft YaHei', 'SimHei', 'Arial']
 plt.rcParams['axes.unicode_minus'] = False
+plt.rcParams['figure.dpi'] = 100
+plt.rcParams['savefig.dpi'] = 300
+
+import seaborn as sns
+
+# 统一配色方案
+COLORS = {
+    'primary': '#2E5090',      # 深蓝
+    'secondary': '#E67E22',    # 橙色
+    'accent': '#27AE60',       # 绿色
+    'warning': '#E74C3C',      # 红色
+    'neutral': '#2C3E50'       # 深灰
+}
+
+CATEGORICAL_COLORS = [
+    '#2E5090', '#E67E22', '#27AE60', '#E74C3C',
+    '#9B59B6', '#16A085', '#F39C12', '#34495E'
+]
+
+
+sns.set_palette(CATEGORICAL_COLORS)
+sns.set_style("whitegrid")
 
 print("="*80)
 print("生成可视化图表")

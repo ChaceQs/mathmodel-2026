@@ -30,6 +30,12 @@ from matplotlib.lines import Line2D
 import warnings
 warnings.filterwarnings('ignore')
 
+# 设置中文字体和样式
+plt.rcParams['font.sans-serif'] = ['Microsoft YaHei', 'SimHei', 'Arial']
+plt.rcParams['axes.unicode_minus'] = False
+plt.rcParams['figure.dpi'] = 100
+plt.rcParams['savefig.dpi'] = 300
+
 print("="*80)
 print("问题二：可视化图表生成")
 print("="*80)
@@ -39,44 +45,27 @@ print("="*80)
 # ============================================================================
 print("\n[配置] 设置绘图参数...")
 
-OKABE_ITO = {
-    'orange': '#E69F00',
-    'sky_blue': '#56B4E9', 
-    'green': '#009E73',
-    'yellow': '#F0E442',
-    'blue': '#0072B2',
-    'vermillion': '#D55E00',
-    'purple': '#CC79A7'
+# 统一配色方案
+COLORS = {
+    'primary': '#2E5090',
+    'secondary': '#E67E22',
+    'accent': '#27AE60',
+    'warning': '#E74C3C',
+    'neutral': '#2C3E50'
 }
 
-plt.rcParams.update({
-    'font.family': 'sans-serif',
-    'font.sans-serif': ['Microsoft YaHei', 'SimHei', 'Arial'],
-    'font.size': 10,
-    'axes.labelsize': 11,
-    'axes.titlesize': 12,
-    'xtick.labelsize': 9,
-    'ytick.labelsize': 9,
-    'legend.fontsize': 9,
-    'axes.linewidth': 1.0,
-    'axes.edgecolor': '#333333',
-    'axes.labelcolor': '#333333',
-    'axes.spines.top': False,
-    'axes.spines.right': False,
-    'axes.grid': True,
-    'grid.alpha': 0.3,
-    'grid.linestyle': '--',
-    'grid.linewidth': 0.5,
-    'axes.unicode_minus': False,
-    'figure.dpi': 100,
-    'savefig.dpi': 300,
-    'savefig.bbox': 'tight',
-    'savefig.pad_inches': 0.1,
-})
+# 为了兼容旧代码，创建OKABE_ITO映射
+OKABE_ITO = {
+    'blue': '#2E5090',
+    'orange': '#E67E22',
+    'green': '#27AE60',
+    'vermillion': '#E74C3C',
+    'sky_blue': '#5B7FC7',
+    'purple': '#9B59B6',
+    'yellow': '#F39C12'
+}
 
-sns.set_theme(style='ticks', context='paper', font='Microsoft YaHei', font_scale=1.0)
-
-print("\n[加载] 读取模型结果数据...")
+print("\n[数据] 读取模型结果...")
 
 schedule_df = pd.read_csv('问题2_调度方案.csv', encoding='utf-8-sig')
 inventory_df = pd.read_csv('问题2_库存对比.csv', encoding='utf-8-sig')
