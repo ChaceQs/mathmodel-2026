@@ -70,7 +70,7 @@ print("\n[数据] 读取模型结果...")
 schedule_df = pd.read_csv('问题2_调度方案.csv', encoding='utf-8-sig')
 inventory_df = pd.read_csv('问题2_库存对比.csv', encoding='utf-8-sig')
 cost_df = pd.read_csv('问题2_成本效益分析.csv', encoding='utf-8-sig')
-station_info = pd.read_csv('站点基础信息.csv', encoding='utf-8-sig')
+station_info = pd.read_csv('附件数据/站点基础信息.csv', encoding='utf-8-sig')
 
 print(f"[OK] 数据加载完成")
 print(f"  - 调度方案: {len(schedule_df)} 条记录")

@@ -32,13 +32,13 @@ print("="*80)
 print("\n【第一部分：数据读取与质量评估】\n")
 
 # 读取所有数据文件
-station_info = pd.read_csv('站点基础信息.csv', encoding='utf-8')
-daily_inventory = pd.read_csv('每日初始库存.csv', encoding='utf-8')
-weather_data = pd.read_csv('天气数据.csv', encoding='utf-8')
-dispatch_records = pd.read_csv('调度记录表.csv', encoding='utf-8')
-expected_inventory = pd.read_csv('站点期望库存.csv', encoding='utf-8')
-station_distance = pd.read_csv('站点距离.csv', encoding='utf-8')
-riding_data = pd.read_csv('日汇总骑行数据.csv', encoding='utf-8')
+station_info = pd.read_csv('附件数据/站点基础信息.csv', encoding='utf-8')
+daily_inventory = pd.read_csv('附件数据/每日初始库存.csv', encoding='utf-8')
+weather_data = pd.read_csv('附件数据/天气数据.csv', encoding='utf-8')
+dispatch_records = pd.read_csv('附件数据/调度记录表.csv', encoding='utf-8')
+expected_inventory = pd.read_csv('附件数据/站点期望库存.csv', encoding='utf-8')
+station_distance = pd.read_csv('附件数据/站点距离.csv', encoding='utf-8')
+riding_data = pd.read_csv('附件数据/日汇总骑行数据.csv', encoding='utf-8')
 
 print("1. 数据文件读取成功")
 print(f"   - 站点基础信息: {station_info.shape}")
@@ -327,7 +327,7 @@ for station_id in inventory_cols:
         # 调度特征
         '调入次数': len(dispatch_records[dispatch_records['调入站点'] == station_id]),
         '调出次数': len(dispatch_records[dispatch_records['调出站点'] == station_id]),
-        '净调度': len(dispatch_records[dispatch_records['调入站点'] == station_id]) - len(dispatch_records[dispatch_records['调出站点'] == station_id])
+        '净调度': dispatch_records[dispatch_records['调入站点'] == station_id]['调度车辆数'].sum() - dispatch_records[dispatch_records['调出站点'] == station_id]['调度车辆数'].sum()
     }
 
     station_features.append(features)

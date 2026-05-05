@@ -49,7 +49,7 @@ plt.rcParams.update({
 
 print("\n[加载] 读取数据...")
 schedule_df = pd.read_csv('问题2_调度方案.csv', encoding='utf-8-sig')
-station_info = pd.read_csv('站点基础信息.csv', encoding='utf-8-sig')
+station_info = pd.read_csv('附件数据/站点基础信息.csv', encoding='utf-8-sig')
 
 print(f"[OK] 调度方案: {len(schedule_df)} 条")
 print(f"[OK] 站点信息: {len(station_info)} 个")

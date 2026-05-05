@@ -26,11 +26,11 @@ print("=" * 80)
 # ============================================================================
 # 数据加载
 # ============================================================================
-station_info = pd.read_csv('站点基础信息.csv', encoding='utf-8')
-expected_inventory = pd.read_csv('站点期望库存.csv', encoding='utf-8')
-initial_inventory = pd.read_csv('每日初始库存.csv', encoding='utf-8')
-distance_matrix = pd.read_csv('站点距离.csv', index_col=0, encoding='utf-8')
-weather_data = pd.read_csv('天气数据.csv', encoding='utf-8')
+station_info = pd.read_csv('附件数据/站点基础信息.csv', encoding='utf-8')
+expected_inventory = pd.read_csv('附件数据/站点期望库存.csv', encoding='utf-8')
+initial_inventory = pd.read_csv('附件数据/每日初始库存.csv', encoding='utf-8')
+distance_matrix = pd.read_csv('附件数据/站点距离.csv', index_col=0, encoding='utf-8')
+weather_data = pd.read_csv('附件数据/天气数据.csv', encoding='utf-8')
 
 initial_inventory['日期'] = pd.to_datetime(initial_inventory['日期'])
 weather_data['日期'] = pd.to_datetime(weather_data['日期'])

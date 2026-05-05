@@ -77,11 +77,11 @@ os.chdir(script_dir)
 print(f"工作目录: {os.getcwd()}\n")
 
 # 读取数据
-station_info = pd.read_csv('站点基础信息.csv', encoding='utf-8')
-daily_inventory = pd.read_csv('每日初始库存.csv', encoding='utf-8')
-weather_data = pd.read_csv('天气数据.csv', encoding='utf-8')
-dispatch_records = pd.read_csv('调度记录表.csv', encoding='utf-8')
-riding_data = pd.read_csv('日汇总骑行数据.csv', encoding='utf-8')
+station_info = pd.read_csv('附件数据/站点基础信息.csv', encoding='utf-8')
+daily_inventory = pd.read_csv('附件数据/每日初始库存.csv', encoding='utf-8')
+weather_data = pd.read_csv('附件数据/天气数据.csv', encoding='utf-8')
+dispatch_records = pd.read_csv('附件数据/调度记录表.csv', encoding='utf-8')
+riding_data = pd.read_csv('附件数据/日汇总骑行数据.csv', encoding='utf-8')
 station_features_df = pd.read_csv('站点特征分析结果.csv', encoding='utf-8')
 
 # 转换日期
