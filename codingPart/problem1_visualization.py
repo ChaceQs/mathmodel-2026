@@ -10,12 +10,6 @@ from matplotlib.patches import Rectangle
 import warnings
 warnings.filterwarnings('ignore')
 
-# 设置中文字体和样式
-plt.rcParams['font.sans-serif'] = ['Microsoft YaHei', 'SimHei', 'Arial']
-plt.rcParams['axes.unicode_minus'] = False
-plt.rcParams['figure.dpi'] = 100
-plt.rcParams['savefig.dpi'] = 300
-
 import seaborn as sns
 
 # 统一配色方案
@@ -32,9 +26,14 @@ CATEGORICAL_COLORS = [
     '#9B59B6', '#16A085', '#F39C12', '#34495E'
 ]
 
-
 sns.set_palette(CATEGORICAL_COLORS)
 sns.set_style("whitegrid")
+
+# 设置中文字体（必须在 seaborn 之后，否则会被 sns.set_style 覆盖）
+plt.rcParams['font.sans-serif'] = ['Microsoft YaHei', 'SimHei', 'Arial']
+plt.rcParams['axes.unicode_minus'] = False
+plt.rcParams['figure.dpi'] = 100
+plt.rcParams['savefig.dpi'] = 300
 
 print("="*80)
 print("生成可视化图表")

@@ -37,12 +37,12 @@ print(f"  - XGBoost模型加载完成")
 print(f"  - 特征维度: {len(feature_cols)}")
 
 # 加载基础数据
-riding_data = pd.read_csv('../modelingPart/日汇总骑行数据.csv', encoding='utf-8-sig')
-inventory_data = pd.read_csv('../modelingPart/每日初始库存.csv', encoding='utf-8-sig')
-weather_data = pd.read_csv('../modelingPart/天气数据.csv', encoding='utf-8-sig')
-target_inventory = pd.read_csv('../modelingPart/站点期望库存.csv', encoding='utf-8-sig')
-station_info = pd.read_csv('../modelingPart/站点基础信息.csv', encoding='utf-8-sig')
-distance_matrix = pd.read_csv('../modelingPart/站点距离.csv', index_col=0, encoding='utf-8-sig')
+riding_data = pd.read_csv('日汇总骑行数据.csv', encoding='utf-8-sig')
+inventory_data = pd.read_csv('每日初始库存.csv', encoding='utf-8-sig')
+weather_data = pd.read_csv('天气数据.csv', encoding='utf-8-sig')
+target_inventory = pd.read_csv('站点期望库存.csv', encoding='utf-8-sig')
+station_info = pd.read_csv('站点基础信息.csv', encoding='utf-8-sig')
+distance_matrix = pd.read_csv('站点距离.csv', index_col=0, encoding='utf-8-sig')
 
 # 转换日期格式
 riding_data['日期'] = pd.to_datetime(riding_data['日期'])

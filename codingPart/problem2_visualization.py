@@ -25,7 +25,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from matplotlib.patches import Patch
+from matplotlib.patches import Patch, FancyArrowPatch
 from matplotlib.lines import Line2D
 import warnings
 warnings.filterwarnings('ignore')
@@ -211,139 +211,163 @@ print(f"[OK] 已保存: 问题2_图3_成本结构对比.png")
 plt.close()
 
 # ========================================================================
-# 图4: 调度网络示意图（地理坐标+弧线连接）
+# 图4: 调度网络示意图（圆形布局 + 精确标签定位 + 防重叠）
 # ========================================================================
 print("[生成] 图4: 调度网络示意图...")
 
-fig, ax = plt.subplots(figsize=(14, 10))
+fig, ax = plt.subplots(figsize=(13, 13))
+ax.set_aspect('equal')
+ax.axis('off')
 
 if len(schedule_df) > 0:
-    station_coords = {}
-    
+    station_list = station_info['station_id'].tolist()
+    n = len(station_list)
+
+    type_order = {'residential': 0, 'business': 1, 'education': 2, 'transport': 3}
+    station_info_copy = station_info.copy()
+    station_info_copy['_order'] = station_info_copy['类型'].map(type_order)
+    station_info_sorted = station_info_copy.sort_values(['_order', 'station_id'])
+    stations_ordered = station_info_sorted['station_id'].tolist()
+
+    R_dot = 4.5
+    R_name = 5.5
+
+    station_pos = {}
+    station_data = {}
+    for i, sid in enumerate(stations_ordered):
+        angle = 2 * np.pi * i / n - np.pi / 2
+        station_pos[sid] = {'x': R_dot * np.cos(angle), 'y': R_dot * np.sin(angle),
+                            'angle': angle}
+        row = station_info[station_info['station_id'] == sid].iloc[0]
+        station_data[sid] = {'name': row['站点名称'], 'type': row['类型']}
+
     type_colors = {
         'residential': OKABE_ITO['sky_blue'],
         'business': OKABE_ITO['vermillion'],
         'education': OKABE_ITO['green'],
         'transport': OKABE_ITO['purple']
     }
-    
-    type_labels = {
-        'residential': '居民区',
-        'business': '商务区',
-        'education': '教育区',
-        'transport': '交通枢纽'
+
+    type_labels_map = {
+        'residential': '居民区', 'business': '商务区',
+        'education': '教育区', 'transport': '交通枢纽'
     }
-    
-    for idx, row_info in station_info.iterrows():
-        sid = row_info['station_id']
-        lon = row_info['经度']
-        lat = row_info['纬度']
-        stype = row_info['类型']
-        sname = row_info['站点名称']
-        
-        station_coords[sid] = {'lon': lon, 'lat': lat, 'type': stype, 'name': sname}
-        
+
+    for sid in stations_ordered:
+        p = station_pos[sid]
+        stype = station_data[sid]['type']
+        sname = station_data[sid]['name']
         color = type_colors.get(stype, '#999999')
-        ax.scatter(lon, lat, s=800, c=color, alpha=0.75, 
-                  edgecolors='white', linewidth=2, zorder=5)
-        ax.annotate(sname, (lon, lat), xytext=(0, 18), textcoords='offset points',
-                   ha='center', va='bottom', fontsize=9, fontweight='bold',
-                   bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.8),
-                   zorder=6)
-    
+
+        ax.scatter(p['x'], p['y'], s=900, c=color, alpha=0.85,
+                   edgecolors='white', linewidth=2.5, zorder=10)
+
+        short_id = sid.replace('S0', '').replace('S', '')
+        ax.text(p['x'], p['y'], short_id, ha='center', va='center',
+                fontsize=8, fontweight='bold', color='white', zorder=11)
+
+        a = station_pos[sid]['angle']
+        nx = R_name * np.cos(a)
+        ny = R_name * np.sin(a)
+        ax.text(nx, ny, sname, ha='center', va='center',
+                fontsize=10, fontweight='bold', color='#333333',
+                bbox=dict(boxstyle='round,pad=0.25', facecolor='white',
+                         edgecolor=color, alpha=0.9, linewidth=1.5),
+                zorder=9)
+
+    placed_labels = []
+
     for _, sched_row in schedule_df.iterrows():
-        start_id = sched_row['起点站点']
-        end_id = sched_row['终点站点']
+        sid = sched_row['起点站点']
+        eid = sched_row['终点站点']
         num_bikes = int(sched_row['调度量'])
         truck_id = sched_row['卡车编号']
-        
-        start_lon = station_coords[start_id]['lon']
-        start_lat = station_coords[start_id]['lat']
-        end_lon = station_coords[end_id]['lon']
-        end_lat = station_coords[end_id]['lat']
-        
+
+        sx = station_pos[sid]['x']
+        sy = station_pos[sid]['y']
+        ex = station_pos[eid]['x']
+        ey = station_pos[eid]['y']
         color = truck_colors.get(truck_id, '#666666')
-        
-        rad = 0.25 if num_bikes >= 4 else 0.2
-        
-        ax.annotate('', xy=(end_lon, end_lat), xytext=(start_lon, start_lat),
-                   arrowprops=dict(arrowstyle='->', lw=1.5+num_bikes*0.12, 
-                                  color=color, alpha=0.8,
-                                  connectionstyle=f'arc3,rad={rad}'),
-                   zorder=3)
-        
-        t = 0.25
-        
-        point_on_line_x = (1-t)**2 * start_lon + 2*(1-t)*t * (start_lon + end_lon)/2 + t**2 * end_lon
-        point_on_line_y = (1-t)**2 * start_lat + 2*(1-t)*t * (start_lat + end_lat)/2 + t**2 * end_lat
-        
-        dx = end_lon - start_lon
-        dy = end_lat - start_lat
-        length = np.sqrt(dx**2 + dy**2) if (dx != 0 or dy != 0) else 1
-        
-        offset_dist = 0.001 + num_bikes * 0.0002
-        perp_x = -dy / length * offset_dist * np.sign(rad)
-        perp_y = dx / length * offset_dist * np.sign(rad)
-        
-        label_x = point_on_line_x + perp_x
-        label_y = point_on_line_y + perp_y
-        
-        fontsize = 7 if num_bikes <= 2 else 8
-        ax.annotate(f'{truck_id}\n{num_bikes}辆',
-                   xy=(point_on_line_x, point_on_line_y),
-                   xytext=(label_x, label_y),
-                   ha='center', va='center', fontsize=fontsize, fontweight='bold',
-                   color=color,
-                   bbox=dict(boxstyle='round,pad=0.12', 
-                             facecolor='white', edgecolor=color, 
-                             alpha=0.95, linewidth=0.9),
-                   arrowprops=dict(arrowstyle='-', color=color, lw=0.5,
-                                   connectionstyle='arc3,rad=0'),
-                   zorder=4)
-    
-    all_lons = [c['lon'] for c in station_coords.values()]
-    all_lats = [c['lat'] for c in station_coords.values()]
-    lon_margin = (max(all_lons) - min(all_lons)) * 0.1
-    lat_margin = (max(all_lats) - min(all_lats)) * 0.15
-    
-    ax.set_xlim(min(all_lons) - lon_margin, max(all_lons) + lon_margin)
-    ax.set_ylim(min(all_lats) - lat_margin, max(all_lats) + lat_margin)
-    
-    ax.set_xlabel('经度', fontweight='bold')
-    ax.set_ylabel('纬度', fontweight='bold')
-    ax.set_title('图4: 调度网络示意图\n（弧线表示调度路径，粗细表示调度量）', 
-                fontweight='bold', pad=15)
-    
-    legend_elements = []
-    
+
+        rad = 0.35 if num_bikes >= 4 else 0.22
+
+        arrow = FancyArrowPatch(
+            (sx, sy), (ex, ey),
+            arrowstyle='->,head_length=0.35,head_width=0.25',
+            connectionstyle=f'arc3,rad={rad}',
+            lw=2.0 + num_bikes * 0.18, color=color, alpha=0.82, zorder=5
+        )
+        ax.add_patch(arrow)
+
+        mx = (sx + ex) / 2.0
+        my = (sy + ey) / 2.0
+        dx = ex - sx
+        dy = ey - sy
+        chord_len = np.sqrt(dx**2 + dy**2)
+
+        if chord_len > 0.01:
+            nx_dir = -dy / chord_len
+            ny_dir = dx / chord_len
+            arc_offset = rad * chord_len
+            arc_mx = mx + nx_dir * arc_offset
+            arc_my = my + ny_dir * arc_offset
+            label_dist = chord_len * 0.06 + 0.30
+            lx = arc_mx + nx_dir * label_dist
+            ly = arc_my + ny_dir * label_dist
+        else:
+            arc_mx, arc_my = mx, my
+            lx, ly = mx, my + 0.6
+
+        for px, py in placed_labels:
+            if np.sqrt((lx - px)**2 + (ly - py)**2) < 1.3:
+                lx += nx_dir * 0.7
+                ly += ny_dir * 0.7
+                break
+
+        placed_labels.append((lx, ly))
+
+        fontsize = 8 if num_bikes <= 2 else 9
+        ax.text(lx, ly, f'{truck_id} {num_bikes}辆',
+                ha='center', va='center', fontsize=fontsize,
+                fontweight='bold', color=color, zorder=12,
+                bbox=dict(boxstyle='round,pad=0.18', facecolor='white',
+                         edgecolor=color, alpha=0.95, linewidth=1.0))
+
+        ax.plot([arc_mx, lx], [arc_my, ly], '-', color=color,
+                lw=0.6, alpha=0.5, zorder=4)
+
+    ax.set_title('图4: 调度网络示意图', fontsize=16, fontweight='bold', pad=15)
+
+    legend_handles = []
     seen_types = set()
-    for stype, scolor in type_colors.items():
-        if stype not in seen_types and stype in [c['type'] for c in station_coords.values()]:
-            legend_elements.append(Patch(facecolor=scolor, edgecolor='white', 
-                                        label=type_labels.get(stype, stype)))
-            seen_types.add(stype)
-    
-    legend_elements.append(Line2D([0], [0], color='gray', linewidth=0))
-    
-    for tid, tcolor in truck_colors.items():
-        legend_elements.append(Line2D([0], [0], color=tcolor, lw=2.5, 
-                                     marker='>', markersize=8, label=f'{tid} 卡车'))
-    
-    ax.legend(handles=legend_elements, loc='upper left', frameon=True, 
-             fancybox=False, edgecolor='black', fontsize=9)
-    
-    ax.grid(True, alpha=0.3, linestyle='--')
-    ax.set_aspect('equal', adjustable='datalim')
-    
+    for sid in stations_ordered:
+        st = station_data[sid]['type']
+        if st not in seen_types:
+            legend_handles.append(Patch(facecolor=type_colors.get(st, '#999'),
+                                       edgecolor='white', linewidth=1.5,
+                                       label=type_labels_map.get(st, st)))
+            seen_types.add(st)
+
+    legend_handles.append(Line2D([0], [0], color='white', linewidth=0))
+    for tid in ['T1', 'T2', 'T3']:
+        legend_handles.append(Line2D([0], [0], color=truck_colors[tid], lw=3,
+                                    label=tid))
+
+    ax.legend(handles=legend_handles, loc='lower right',
+             frameon=True, fancybox=False, edgecolor='#cccccc',
+             fontsize=10, ncol=2)
+
+    ax.set_xlim(-7.2, 7.2)
+    ax.set_ylim(-7.2, 7.2)
+
 else:
     ax.text(0.5, 0.5, '无调度操作', ha='center', va='center', fontsize=16,
            transform=ax.transAxes)
     ax.set_title('图4: 调度网络示意图', fontweight='bold', pad=15)
-    ax.axis('off')
 
-sns.despine()
-plt.tight_layout()
-plt.savefig('问题2_图4_调度网络示意图.png', dpi=300, bbox_inches='tight')
+plt.tight_layout(pad=0.5)
+plt.savefig('问题2_图4_调度网络示意图.png', dpi=300, bbox_inches='tight',
+            facecolor='white', edgecolor='none')
 print(f"[OK] 已保存: 问题2_图4_调度网络示意图.png")
 plt.close()
 
